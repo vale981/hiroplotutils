@@ -15,7 +15,7 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
-        hiroPlotUtils = { poetry2nix, lib }: poetry2nix.mkPoetryApplication {
+        hiroplotutils = { poetry2nix, lib }: poetry2nix.mkPoetryApplication {
           projectDir = self;
           overrides = poetry2nix.overrides.withDefaults (final: super:
             lib.mapAttrs
@@ -35,13 +35,13 @@
           overlays = [
             poetry2nix.overlays.default
             (final: _: {
-              hiroPlotUtils = final.callPackage hiroPlotUtils { };
+              hiroplotutils = final.callPackage hiroplotutils { };
             })
           ];
         };
       in
       {
-        packages.default = pkgs.hiroPlotUtils;
+        packages.default = pkgs.hiroplotutils;
         devShells = {
           # Shell for app dependencies.
           #
