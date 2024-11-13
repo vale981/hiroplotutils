@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "hiroplotutils"
+version = "0.1.0"
+description = "Valentin (hiro) Boettcher's plotting and metadata utitilies."
+authors = ["Valentin Boettcher <hiro at protagon dot space>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/vale981/hiroplotutils"
+packages = [
+    { include = "hiroplotutils" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+matplotlib = "^3.9.2"
+pyyaml = "^6.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
