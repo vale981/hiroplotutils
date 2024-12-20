@@ -151,25 +151,27 @@ def get_kwargs():
 
 
 @noop_if_interactive
-def save_figure(fig, name, extra_meta=None, include_kwags=True, *args, **kwargs):
+def save_figure(
+    fig, name, extra_meta=None, include_kwags=True, directory="./figs", *args, **kwargs
+):
     import pickle
 
-    dir = pathlib.Path(f"./figs/{name}.pdf").parents[0]
-    dir.mkdir(exist_ok=True)
+    directory = pathlib.Path(directory)
+    directory.mkdir(exist_ok=True)
     fig.tight_layout()
 
     write_meta(
-        f"./figs/{name}.pdf",
+        directory / f"{name}.pdf",
         name=name,
         include_kwags=include_kwags,
         extra_meta=extra_meta,
     )
 
-    plt.savefig(f"./figs/{name}.pdf", *args, **kwargs)
-    plt.savefig(f"./figs/{name}.png", *args, dpi=600, **kwargs)
+    plt.savefig(directory / f"{name}.pdf", *args, **kwargs)
+    plt.savefig(directory / f"{name}.png", *args, dpi=600, **kwargs)
 
-    print(f"Figure saved as ./figs/{name}.pdf")
-    pickle_path = dir / f"{name}.pkl"
+    print(f"Figure saved as {directory}/{name}.pdf")
+    pickle_path = directory / f"{name}.pkl"
 
     with open(pickle_path, "wb") as f:
         pickle.dump(fig, f)
