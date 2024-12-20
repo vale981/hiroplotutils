@@ -154,7 +154,7 @@ def get_kwargs():
 def save_figure(fig, name, extra_meta=None, include_kwags=True, *args, **kwargs):
     import pickle
 
-    dir = pathlib.Path(f"./figs/")
+    dir = pathlib.Path(f"./figs/{name}.pdf").parents[0]
     dir.mkdir(exist_ok=True)
     fig.tight_layout()
 
