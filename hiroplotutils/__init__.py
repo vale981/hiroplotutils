@@ -158,7 +158,6 @@ def save_figure(
 
     directory = pathlib.Path(directory)
     directory.mkdir(exist_ok=True)
-    fig.tight_layout()
 
     write_meta(
         directory / f"{name}.pdf",
