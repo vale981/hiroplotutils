@@ -26,7 +26,8 @@ def noop_if_interactive(f):
     return wrapped
 
 
-def make_figure(fig_name: str = "interactive", *args, **kwargs):
+def make_figure(fig_name: str | None = None, *args, **kwargs):
+    fig_name = fig_name or inspect.stack()[1].function
     fig = plt.figure(fig_name, *args, **kwargs)
     fig.clf()
     return fig
