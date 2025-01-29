@@ -32,7 +32,7 @@ def make_figure(fig_name: str | None = None, *args, **kwargs):
     fig_name = fig_name or inspect.stack()[1].function
     fig = plt.figure(fig_name, *args, **kwargs)
 
-    fig.__dict__["__hiro_filename_function"] = get_file_and_function()
+    fig.__dict__["__hiro_filename_function"] = get_function_meta()
     fig.clf()
 
     return fig
@@ -97,7 +97,7 @@ def get_jj_info(type):
     ).stdout.decode("utf-8")
 
 
-def get_file_and_function():
+def get_function_meta():
     i = 1
     stack = inspect.stack()
     frame = stack[i]
@@ -112,7 +112,7 @@ def get_file_and_function():
     filename = pathlib.Path(frame.filename) if frame else "<unknown>"
     function = frame.function if frame else "<unknown>"
 
-    return filename, function
+    return filename, function, get_kwargs()
 
 
 def write_meta(path, include_kwags=True, filename_function_override=None, **kwargs):
@@ -135,7 +135,7 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
         .strip()
     )
 
-    filename, function = filename_function_override or get_file_and_function()
+    filename, function, fn_kwargs = filename_function_override or get_function_meta()
 
     if filename != "<unknown>":
         filename = str(filename.relative_to(project_dir))
@@ -146,7 +146,7 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
             dict(
                 source=filename,
                 function=function,
-                function_args=get_kwargs() if include_kwags else {},
+                function_args=fn_kwargs if include_kwags else {},
                 change_id=change_id,
                 commit_id=commit_id,
                 description=description.strip(),
