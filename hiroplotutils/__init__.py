@@ -150,7 +150,7 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
                 change_id=change_id,
                 commit_id=commit_id,
                 description=description.strip(),
-                refers_to=str(path),
+                refers_to=str(path.relative_to(project_dir)),
             )
             | kwargs,
             f,
