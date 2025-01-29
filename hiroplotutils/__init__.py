@@ -31,7 +31,10 @@ def noop_if_interactive(f):
 def make_figure(fig_name: str | None = None, *args, **kwargs):
     fig_name = fig_name or inspect.stack()[1].function
     fig = plt.figure(fig_name, *args, **kwargs)
+
+    fig.__dict__["__hiro_filename_function"] = get_file_and_function()
     fig.clf()
+
     return fig
 
 
@@ -94,7 +97,25 @@ def get_jj_info(type):
     ).stdout.decode("utf-8")
 
 
-def write_meta(path, include_kwags=True, **kwargs):
+def get_file_and_function():
+    i = 1
+    stack = inspect.stack()
+    frame = stack[i]
+    while "site-packages" in frame.filename or "hiroplotutils" in frame.filename:
+        i += 1
+        if i >= len(stack):
+            frame = None
+            break
+
+        frame = stack[i]
+
+    filename = pathlib.Path(frame.filename) if frame else "<unknown>"
+    function = frame.function if frame else "<unknown>"
+
+    return filename, function
+
+
+def write_meta(path, include_kwags=True, filename_function_override=None, **kwargs):
     """Write metatdata for result that has been written to a file
     under ``path``.
 
@@ -114,14 +135,10 @@ def write_meta(path, include_kwags=True, **kwargs):
         .strip()
     )
 
-    frame = inspect.stack()[3]
-    module = inspect.getmodule(frame[0])
-    filename = str(
-        pathlib.Path(module.__file__).relative_to(project_dir)  # type: ignore
-        if module
-        else "<unknown>"
-    )
-    function = frame.function
+    filename, function = filename_function_override or get_file_and_function()
+
+    if filename != "<unknown>":
+        filename = str(filename.relative_to(project_dir))
 
     outpath = f"{path}.meta.yaml"
     with open(outpath, "w") as f:
@@ -167,6 +184,7 @@ def save_figure(
         name=name,
         include_kwags=include_kwags,
         extra_meta=extra_meta,
+        filename_function_override=fig.__dict__.get("__hiro_filename_function", None),
     )
 
     plt.savefig(directory / f"{name}.pdf", *args, **kwargs)
