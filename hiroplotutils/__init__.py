@@ -159,7 +159,7 @@ def save_figure(
 ):
     import pickle
 
-    directory = pathlib.Path(directory)
+    directory = (pathlib.Path.cwd()) / directory
     directory.mkdir(exist_ok=True)
 
     write_meta(
