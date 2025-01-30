@@ -179,14 +179,6 @@ def save_figure(
     directory = (pathlib.Path.cwd()) / directory
     directory.mkdir(exist_ok=True)
 
-    write_meta(
-        directory / f"{name}.pdf",
-        name=name,
-        include_kwags=include_kwags,
-        extra_meta=extra_meta,
-        filename_function_override=fig.__dict__.get("__hiro_filename_function", None),
-    )
-
     plt.savefig(directory / f"{name}.pdf", *args, **kwargs)
     plt.savefig(directory / f"{name}.png", *args, dpi=600, **kwargs)
 
@@ -195,6 +187,14 @@ def save_figure(
 
     with open(pickle_path, "wb") as f:
         pickle.dump(fig, f)
+
+    write_meta(
+        directory / f"{name}.pdf",
+        name=name,
+        include_kwags=include_kwags,
+        extra_meta=extra_meta,
+        filename_function_override=fig.__dict__.get("__hiro_filename_function", None),
+    )
 
 
 @noop_if_interactive
@@ -322,7 +322,7 @@ class PlotContainer:
                             self._save_fig(
                                 f(**keywords),
                                 size,
-                                (len(self._plots) + 1, sub_index + 1),
+                                (plot_index, sub_index + 1),
                             ),
                         ]
                         and None,
