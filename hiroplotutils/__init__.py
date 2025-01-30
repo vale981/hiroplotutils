@@ -362,7 +362,7 @@ class PlotContainer:
 
         if cmd_args.list:
             print("hi")
-            format = "{:2d} [{:2d} {:2d}] {:<30} "
+            format = "{:2d} {:03}_{:03}_{:<30} "
             total = 1
             for i, plot_group in enumerate(self._plots):
                 for sub_index, plot in enumerate(plot_group):
@@ -373,6 +373,7 @@ class PlotContainer:
                     print(" ".join(f"{k}={v}" for k, v in plot[2].items()))
                     total += 1
 
+                print("")
             return
 
         only = (
