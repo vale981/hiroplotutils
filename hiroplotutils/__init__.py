@@ -313,6 +313,7 @@ class PlotContainer:
         vertical: float = size[1] if isinstance(size, tuple) else self._default_ratio
 
         fig.set_size_inches(horizontal, vertical * horizontal)
+
         save_figure(
             fig,
             f"{num[0]:03}_{num[1]:03}_" + fig.get_label(),
@@ -337,19 +338,23 @@ class PlotContainer:
             plot_index = len(self._plots) + 1
             for sub_index, keywords in enumerate(args):
                 logging.info("Registered plot", f, keywords)
+
                 plots.append(
                     (
-                        lambda: [
-                            self._pyplot_config(),
-                            self._save_fig(
-                                f(**keywords),
-                                size,
-                                (plot_index, sub_index + 1),
-                            ),
-                        ]
-                        and None,
+                        delayed(
+                            lambda kw, index: [
+                                self._pyplot_config(),
+                                self._save_fig(
+                                    f(**kw),
+                                    size,
+                                    index,
+                                ),
+                            ]
+                            and None
+                        ),
                         f,
                         keywords,
+                        (plot_index, sub_index + 1),
                     )
                 )
 
@@ -383,7 +388,6 @@ class PlotContainer:
         cmd_args = parser.parse_args()
 
         if cmd_args.list:
-            print("hi")
             format = "{:2d} {:03}_{:03}_{:<30} "
             total = 1
             for i, plot_group in enumerate(self._plots):
@@ -410,4 +414,4 @@ class PlotContainer:
         if "backend" not in kwargs:
             kwargs["backend"] = "loky"
 
-        Parallel(*args, **kwargs)(delayed(flattened[i][0])() for i in only)
+        Parallel(*args, **kwargs)(flattened[i][0](*flattened[i][-2:]) for i in only)
