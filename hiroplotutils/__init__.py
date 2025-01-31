@@ -16,6 +16,20 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
+def str_presenter(dumper, data):
+    """configures yaml for dumping multiline strings
+    Ref: https://stackoverflow.com/questions/8640959/how-can-i-control-what-scalar-form-pyyaml-uses-for-my-data"""
+    if len(data.splitlines()) > 1:  # check for multiline string
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
+yaml.add_representer(str, str_presenter)
+yaml.representer.SafeRepresenter.add_representer(
+    str, str_presenter
+)  # to use with safe_dum
+
+
 def noop_if_interactive(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
@@ -116,7 +130,7 @@ def get_function_meta():
     filename = pathlib.Path(frame.filename) if frame else "<unknown>"
     function = frame.function if frame else "<unknown>"
 
-    return filename, function, get_kwargs(frame)
+    return filename, function, get_kwargs(frame), inspect.getsource(frame.frame)
 
 
 def write_meta(path, include_kwags=True, filename_function_override=None, **kwargs):
@@ -139,7 +153,9 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
         .strip()
     )
 
-    filename, function, fn_kwargs = filename_function_override or get_function_meta()
+    filename, function, fn_kwargs, src = (
+        filename_function_override or get_function_meta()
+    )
 
     if filename != "<unknown>":
         filename = str(filename.relative_to(project_dir))
@@ -153,8 +169,9 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
                 function_args=fn_kwargs if include_kwags else {},
                 change_id=change_id,
                 commit_id=commit_id,
-                description=description.strip(),
+                commit_description=description.strip(),
                 refers_to=str(path.relative_to(project_dir)),
+                src=src,
             )
             | kwargs,
             f,
