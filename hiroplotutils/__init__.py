@@ -29,7 +29,11 @@ def noop_if_interactive(f):
 
 
 def make_figure(fig_name: str | None = None, *args, **kwargs):
-    fig_name = fig_name or inspect.stack()[1].function
+    meta = get_function_meta()
+
+    fig_name = fig_name or (meta[1] if isinstance(meta[1], str) else meta[1].name)
+    fig_name += "".join(f"_{k}={str(v)}" for k, v in meta[2].items()) if meta[2] else ""
+
     fig = plt.figure(fig_name, *args, **kwargs)
 
     fig.__dict__["__hiro_filename_function"] = get_function_meta()
@@ -112,7 +116,7 @@ def get_function_meta():
     filename = pathlib.Path(frame.filename) if frame else "<unknown>"
     function = frame.function if frame else "<unknown>"
 
-    return filename, function, get_kwargs()
+    return filename, function, get_kwargs(frame)
 
 
 def write_meta(path, include_kwags=True, filename_function_override=None, **kwargs):
@@ -160,13 +164,14 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
     print(f"Metadata written to {outpath}")
 
 
-def get_kwargs():
-    frame = inspect.currentframe().f_back.f_back.f_back.f_back
+def get_kwargs(frame=None):
+    frame = frame.frame or inspect.currentframe().f_back.f_back.f_back.f_back
     keys, _, _, values = inspect.getargvalues(frame)
     kwargs = {}
     for key in keys:
         if key != "self":
             kwargs[key] = values[key]
+
     return kwargs
 
 
