@@ -337,7 +337,7 @@ class PlotContainer:
             plots = []
             plot_index = len(self._plots) + 1
             for sub_index, keywords in enumerate(args):
-                logging.info("Registered plot", f, keywords)
+                logging.info(f"Registered plot {f}, {keywords}")
 
                 plots.append(
                     (
