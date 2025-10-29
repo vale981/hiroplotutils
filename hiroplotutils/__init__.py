@@ -11,6 +11,8 @@ import numpy as np
 from joblib import Parallel, delayed
 import logging
 import itertools
+import copy
+import os
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -353,7 +355,7 @@ class PlotContainer:
                             and None
                         ),
                         f,
-                        keywords,
+                        copy.deepcopy(keywords),
                         (plot_index, sub_index + 1),
                     )
                 )
@@ -408,8 +410,13 @@ class PlotContainer:
             else [i - 1 for i in cmd_args.only]
         )
 
-        if "n_jobs" not in kwargs or cmd_args.n_jobs != -1:
-            kwargs["n_jobs"] = cmd_args.n_jobs
+        if cmd_args.n_jobs != -1:
+            kwargs["n_jobs"] = min(cmd_args.n_jobs, len(cmd_args.only))
+        else:
+            kwargs["n_jobs"] = min(
+                os.cpu_count() or -1,
+                len(cmd_args.only) if cmd_args.only else float("inf"),
+            )
 
         if "backend" not in kwargs:
             kwargs["backend"] = "loky"
