@@ -204,15 +204,22 @@ def save_figure(
     directory: pathlib.Path = (pathlib.Path.cwd()) / directory
     directory.mkdir(exist_ok=True)
 
-    pdfname = directory / f"{name}.pdf"
+    pdfname: pathlib.Path = directory / f"{name}.pdf"
+    pngname = pdfname.with_suffix(".png")
+
     latestname = directory / "latest.pdf"
     pdfname.touch()
 
     plt.savefig(pdfname, *args, **kwargs)
+    logging.info(f"Figure saved as {pdfname}")
     shutil.copy(pdfname, latestname)
-    plt.savefig(directory / f"{name}.png", *args, dpi=600, **kwargs)
+    if shutil.which("magick") and shutil.which("gs"):
+        subprocess.run(
+            ["magick", "-units", "PixelsPerInch", "-density", "600", pdfname, pngname]
+        )
 
-    print(f"Figure saved as {directory}/{name}.pdf")
+        logging.info(f"Figure saved as {pngname}")
+
     pickle_path = directory / f"{name}.pkl"
 
     with open(pickle_path, "wb") as f:
@@ -345,7 +352,7 @@ class PlotContainer:
             plots = []
             plot_index = len(self._plots) + 1
             for sub_index, keywords in enumerate(args):
-                logging.info(f"Registered plot {f}, {keywords}")
+                logging.debug(f"Registered plot {f}, {keywords}")
 
                 plots.append(
                     (
