@@ -417,7 +417,7 @@ class PlotContainer:
 
         if cmd_args.n != -1:
             kwargs["n_jobs"] = min(
-                cmd_args.n_jobs, len(cmd_args.only) if cmd_args.only else float("inf")
+                cmd_args.n, len(cmd_args.only) if cmd_args.only else float("inf")
             )
         else:
             kwargs["n_jobs"] = min(
