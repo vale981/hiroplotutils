@@ -10,3 +10,6 @@ dependencies = [
     "pyyaml>=6.0.3",
     "typing-extensions>=4.15.0",
 ]
+
+[tool.uv.build-backend]
+module-name = "hiroplotutils"
