@@ -4,6 +4,7 @@ from functools import wraps
 from typing_extensions import ParamSpec, TypeVar, Concatenate
 import yaml
 import inspect
+import shutil
 import subprocess
 import pathlib
 import sys
@@ -207,8 +208,8 @@ def save_figure(
     latestname = directory / "latest.pdf"
     pdfname.touch()
 
-    subprocess.call(["ln", "-sf", pdfname, latestname])
     plt.savefig(pdfname, *args, **kwargs)
+    shutil.copy(pdfname, latestname)
     plt.savefig(directory / f"{name}.png", *args, dpi=600, **kwargs)
 
     print(f"Figure saved as {directory}/{name}.pdf")
