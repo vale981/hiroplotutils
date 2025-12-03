@@ -200,10 +200,15 @@ def save_figure(
 ):
     import pickle
 
-    directory = (pathlib.Path.cwd()) / directory
+    directory: pathlib.Path = (pathlib.Path.cwd()) / directory
     directory.mkdir(exist_ok=True)
 
-    plt.savefig(directory / f"{name}.pdf", *args, **kwargs)
+    pdfname = directory / f"{name}.pdf"
+    latestname = directory / "latest.pdf"
+    pdfname.touch()
+
+    os.symlink(pdfname, latestname)
+    plt.savefig(pdfname, *args, **kwargs)
     plt.savefig(directory / f"{name}.png", *args, dpi=600, **kwargs)
 
     print(f"Figure saved as {directory}/{name}.pdf")
@@ -375,7 +380,7 @@ class PlotContainer:
         import argparse
 
         parser = argparse.ArgumentParser()
-        parser.add_argument("--n_jobs", type=int, default=-1)
+        parser.add_argument("-n", type=int, default=-1)
         parser.add_argument(
             "--list", help="List all available plots", action="store_true"
         )
@@ -410,8 +415,10 @@ class PlotContainer:
             else [i - 1 for i in cmd_args.only]
         )
 
-        if cmd_args.n_jobs != -1:
-            kwargs["n_jobs"] = min(cmd_args.n_jobs, len(cmd_args.only))
+        if cmd_args.n != -1:
+            kwargs["n_jobs"] = min(
+                cmd_args.n_jobs, len(cmd_args.only) if cmd_args.only else float("inf")
+            )
         else:
             kwargs["n_jobs"] = min(
                 os.cpu_count() or -1,
