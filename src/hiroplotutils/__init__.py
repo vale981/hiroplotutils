@@ -15,6 +15,7 @@ import itertools
 import copy
 import os
 
+log = logging.getLogger(__name__)
 P = ParamSpec("P")
 R = TypeVar("R")
 
@@ -181,7 +182,7 @@ def write_meta(path, include_kwags=True, filename_function_override=None, **kwar
             allow_unicode=True,
         )
 
-    print(f"Metadata written to {outpath}")
+    log.info(f"Metadata written to {outpath}")
 
 
 def get_kwargs(frame=None):
@@ -211,14 +212,14 @@ def save_figure(
     pdfname.touch()
 
     plt.savefig(pdfname, *args, **kwargs)
-    logging.info(f"Figure saved as {pdfname}")
+    log.info(f"Figure saved as {pdfname}")
     shutil.copy(pdfname, latestname)
     if shutil.which("magick") and shutil.which("gs"):
         subprocess.run(
             ["magick", "-units", "PixelsPerInch", "-density", "600", pdfname, pngname]
         )
 
-        logging.info(f"Figure saved as {pngname}")
+        log.info(f"Figure saved as {pngname}")
 
     pickle_path = directory / f"{name}.pkl"
 
@@ -352,7 +353,7 @@ class PlotContainer:
             plots = []
             plot_index = len(self._plots) + 1
             for sub_index, keywords in enumerate(args):
-                logging.debug(f"Registered plot {f}, {keywords}")
+                log.debug(f"Registered plot {f}, {keywords}")
 
                 plots.append(
                     (
