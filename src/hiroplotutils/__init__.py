@@ -207,7 +207,7 @@ def save_figure(
     latestname = directory / "latest.pdf"
     pdfname.touch()
 
-    os.symlink(pdfname, latestname)
+    subprocess.call(["ln", "-sf", pdfname, latestname])
     plt.savefig(pdfname, *args, **kwargs)
     plt.savefig(directory / f"{name}.png", *args, dpi=600, **kwargs)
 
