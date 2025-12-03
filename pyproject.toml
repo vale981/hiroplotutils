@@ -1,5 +1,5 @@
 [project]
-name = "hiro-plot-utils"
+name = "hiroplotutils"
 version = "0.1.0"
 description = "Some utilities for generating reproducible plots."
 readme = "README.md"
